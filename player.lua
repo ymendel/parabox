@@ -21,7 +21,7 @@ function player_update()
 
   if (pl_out_of_bounds() or pl_hit_barrier()) pl.x,pl.y=px,py
 
-  push_boxes()
+  push_boxes(pl,pl.dx,pl.dy)
 
   if (pl_on_box()) pl.x,pl.y=px,py
 end

@@ -28,15 +28,17 @@ function boxes_draw()
   end
 end
 
-function push_boxes()
+function push_boxes(pusher,dx,dy)
   for box in all(boxes) do
-    if (pl.x==box.x and pl.y==box.y) then
+    if (pusher~=box and pusher.x==box.x and pusher.y==box.y) then
       local px,py=box.x,box.y
-      box.x+=pl.dx
-      box.y+=pl.dy
+      box.x+=dx
+      box.y+=dy
       local tile=mget(box.x,box.y)
       if (tile_blocking(tile)) then
         box.x,box.y=px,py
+      else
+        push_boxes(box,dx,dy)
       end
     end
   end
