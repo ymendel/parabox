@@ -37,8 +37,13 @@ function push_boxes(pusher,dx,dy)
       local tile=mget(box.x,box.y)
       if (tile_blocking(tile)) then
         box.x,box.y=px,py
+        return -1
       else
-        push_boxes(box,dx,dy)
+        local err=push_boxes(box,dx,dy)
+        if (err==-1) then
+          box.x,box.y=px,py
+          return -1
+        end
       end
     end
   end
