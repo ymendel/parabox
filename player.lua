@@ -8,8 +8,7 @@ function player_init()
 end
 
 function player_update()
-  px=pl.x
-  py=pl.y
+  local px,py=pl.x,pl.y
 
   pl_init_move()
 
@@ -20,7 +19,11 @@ function player_update()
 
   pl_do_move()
 
-  if (pl_out_of_bounds() or pl_hit_barrier()) pl.x=px pl.y=py
+  if (pl_out_of_bounds() or pl_hit_barrier()) pl.x,pl.y=px,py
+
+  push_boxes()
+
+  if (pl_on_box()) pl.x,pl.y=px,py
 end
 
 function pl_init_move()
@@ -49,9 +52,7 @@ end
 
 function pl_hit_barrier()
   local tile=mget(pl.x, pl.y)
-  if (fget(tile,1)) return true
-
-  return false
+  return tile_blocking(tile)
 end
 
 function player_draw()
