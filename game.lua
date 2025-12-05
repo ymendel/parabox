@@ -6,11 +6,12 @@ end
 
 function game_update()
   player_update()
+  -- check_boxes()
 end
 
 function game_draw()
   cls()
-  camera(-30,-30)
+  camera(-20,-20)
   map()
   boxes_draw()
   player_draw()
@@ -25,6 +26,10 @@ function boxes_draw()
   for box in all(boxes) do
     local coords=map_to_screen_coords(box.x,box.y)
     spr(box.spr,coords[1],coords[2])
+    if (box.tgt and box.tgt_col) then
+      local tgt_coords=map_to_screen_coords(box.tgt[1],box.tgt[2])
+      rectdim(tgt_coords[1],tgt_coords[2],7,7,box.tgt_col)
+    end
   end
 end
 
@@ -60,8 +65,9 @@ end
 
 function map_init()
   map()
-  for i=0,15 do
-    for j=0,15 do
+  local tgts={}
+  for i=0,10 do
+    for j=0,10 do
       local tile=mget(i,j)
       if (tile_moveable(tile)) then
         local nb={
@@ -72,8 +78,23 @@ function map_init()
         add(boxes,nb)
         mset(i,j,17)
       end
+      if (not(tile_moveable(tile) or tile_blocking(tile))) then
+        add(tgts, {i,j})
+      end
     end
   end
+
+  for box in all(boxes) do
+    local tgt=rnd(tgts)
+    box.tgt=tgt
+    box.tgt_col=tgt_col(box.spr)
+    del(tgts,tgt)
+  end
+end
+
+function tgt_col(tile)
+  local sx,sy=tile%16,tile\16
+  return sget(sx*8+4,sy*8+4)
 end
 
 function tile_blocking(tile)

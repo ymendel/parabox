@@ -12,3 +12,7 @@ end
 function map_to_screen_coords(x,y)
   return {x*8,y*8}
 end
+
+function rectdim(x,y,w,h,col)
+  rect(x,y,x+w-1,y+h-1,col)
+end
