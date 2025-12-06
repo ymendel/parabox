@@ -5,6 +5,11 @@ function states_init()
       update=game_update,
       draw=game_draw,
     },
+    win={
+      init=win_init,
+      update=win_update,
+      draw=win_draw,
+    },
   }
 end
 

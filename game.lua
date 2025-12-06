@@ -2,11 +2,17 @@ function game_init()
   boxes_init()
   map_init()
   player_init()
+  won=false
 end
 
 function game_update()
+  if (won) then
+    state="win"
+    handle_state()
+    return
+  end
   player_update()
-  -- check_boxes()
+  check_boxes()
 end
 
 function game_draw()
@@ -103,4 +109,32 @@ end
 
 function tile_moveable(tile)
   return fget(tile,2)
+end
+
+function check_boxes()
+  for box in all(boxes) do
+    if (not box_on_target(box)) then
+      return false
+    end
+  end
+
+  won=true
+end
+
+function box_on_target(box)
+  if (not box.tgt) return false
+  return box.x==box.tgt[1] and box.y==box.tgt[2]
+end
+
+function win_init()
+  -- anything to do here?
+  print("yayyyyyyyyyy",10,10,10)
+end
+
+function win_update()
+  -- anything to do here?
+end
+
+function win_draw()
+  -- anything to do here?
 end
