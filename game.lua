@@ -1,6 +1,12 @@
 function game_init()
+  mx=16
+  my=0
+  mw=9
+  mh=9
+
   won=false
   tgts={}
+
   boxes_init()
   map_init()
   player_init()
@@ -19,7 +25,7 @@ end
 function game_draw()
   cls()
   camera(-20,-20)
-  map()
+  map(mx,my,0,0,9,9)
   boxes_draw()
   tgts_draw()
   player_draw()
@@ -52,7 +58,7 @@ function push_boxes(pusher,dx,dy)
       local px,py=box.x,box.y
       box.x+=dx
       box.y+=dy
-      local tile=mget(box.x,box.y)
+      local tile=mget(box.x+mx,box.y+my)
       if (tile_blocking(tile)) then
         box.x,box.y=px,py
         return -1
@@ -77,7 +83,7 @@ function pl_on_box()
 end
 
 function map_init()
-  map()
+  map(mx,my,0,0,mw,mh)
   local pals={
     {[1]=1,[12]=12},
     {[1]=8,[12]=14},
@@ -85,9 +91,9 @@ function map_init()
     {[1]=2,[12]=8}
   }
   local pos_tgts={}
-  for i=0,10 do
-    for j=0,10 do
-      local tile=mget(i,j)
+  for i=0,mw-1 do
+    for j=0,mh-1 do
+      local tile=mget(mx+i,my+j)
       if (tile_moveable(tile)) then
         local nb={
           spr=tile,
@@ -96,7 +102,7 @@ function map_init()
           y=j,
         }
         add(boxes,nb)
-        mset(i,j,17)
+        mset(mx+i,my+j,17)
       end
       if (not(tile_moveable(tile) or tile_blocking(tile))) then
         add(pos_tgts, {x=i,y=j})
