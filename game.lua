@@ -1,8 +1,9 @@
 function game_init()
+  won=false
+  tgts={}
   boxes_init()
   map_init()
   player_init()
-  won=false
 end
 
 function game_update()
@@ -12,7 +13,7 @@ function game_update()
     return
   end
   player_update()
-  check_boxes()
+  check_tgts()
 end
 
 function game_draw()
@@ -20,6 +21,7 @@ function game_draw()
   camera(-20,-20)
   map()
   boxes_draw()
+  tgts_draw()
   player_draw()
   camera()
 end
@@ -31,11 +33,16 @@ end
 function boxes_draw()
   for box in all(boxes) do
     local coords=map_to_screen_coords(box.x,box.y)
+    pal(box.pal)
     spr(box.spr,coords[1],coords[2])
-    if (box.tgt and box.tgt_col) then
-      local tgt_coords=map_to_screen_coords(box.tgt[1],box.tgt[2])
-      rectdim(tgt_coords[1],tgt_coords[2],7,7,box.tgt_col)
-    end
+  end
+  pal()
+end
+
+function tgts_draw()
+  for tgt in all(tgts) do
+    local coords=map_to_screen_coords(tgt.x,tgt.y)
+    rectdim(coords[1],coords[2],7,7,7)
   end
 end
 
@@ -71,13 +78,20 @@ end
 
 function map_init()
   map()
-  local tgts={}
+  local pals={
+    {[1]=1,[12]=12},
+    {[1]=8,[12]=14},
+    {[1]=3,[12]=11},
+    {[1]=2,[12]=8}
+  }
+  local pos_tgts={}
   for i=0,10 do
     for j=0,10 do
       local tile=mget(i,j)
       if (tile_moveable(tile)) then
         local nb={
           spr=tile,
+          pal=rnd(pals),
           x=i,
           y=j,
         }
@@ -85,22 +99,16 @@ function map_init()
         mset(i,j,17)
       end
       if (not(tile_moveable(tile) or tile_blocking(tile))) then
-        add(tgts, {i,j})
+        add(pos_tgts, {x=i,y=j})
       end
     end
   end
 
   for box in all(boxes) do
-    local tgt=rnd(tgts)
-    box.tgt=tgt
-    box.tgt_col=tgt_col(box.spr)
-    del(tgts,tgt)
+    local tgt=rnd(pos_tgts)
+    add(tgts,tgt)
+    del(pos_tgts,tgt)
   end
-end
-
-function tgt_col(tile)
-  local sx,sy=tile%16,tile\16
-  return sget(sx*8+4,sy*8+4)
 end
 
 function tile_blocking(tile)
@@ -111,9 +119,9 @@ function tile_moveable(tile)
   return fget(tile,2)
 end
 
-function check_boxes()
-  for box in all(boxes) do
-    if (not box_on_target(box)) then
+function check_tgts()
+  for tgt in all(tgts) do
+    if (not tgt_has_box(tgt)) then
       return false
     end
   end
@@ -121,9 +129,16 @@ function check_boxes()
   won=true
 end
 
-function box_on_target(box)
-  if (not box.tgt) return false
-  return box.x==box.tgt[1] and box.y==box.tgt[2]
+function tgt_has_box(tgt)
+  for box in all(boxes) do
+    if (same_position(box,tgt)) return true
+  end
+
+  return false
+end
+
+function same_position(a,b)
+  return a.x==b.x and a.y==b.y
 end
 
 function win_init()
