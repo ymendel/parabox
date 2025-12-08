@@ -1,15 +1,45 @@
+function levels_init()
+  levels={}
+
+  local level1=[[
+XXXXXXXXXXX
+X.........X
+X.b..b....X
+X..P......X
+X....X....X
+X..Xb.....X
+X.........X
+X....XX...X
+X.........X
+X.........X
+XXXXXXXXXXX]]
+
+  add(levels,level1)
+end
+
+function parse_level(level_str)
+  local lines=split(level_str,"\n")
+
+  local level={
+    lines=lines,
+    cols=#lines[1],
+    rows=#lines,
+  }
+  return level
+end
+
 function game_init()
-  mx=16
-  my=0
-  mw=9
-  mh=9
+  levels_init()
+  level=parse_level(levels[1])
+  mw=level.cols
+  mh=level.rows
 
   won=false
   tgts={}
+  boxes={}
 
-  boxes_init()
   map_init()
-  player_init()
+  player_init(player_pos)
 end
 
 function game_update()
@@ -25,15 +55,16 @@ end
 function game_draw()
   cls()
   camera(-20,-20)
-  map(mx,my,0,0,9,9)
+  level_draw()
   boxes_draw()
   tgts_draw()
   player_draw()
   camera()
 end
 
-function boxes_init()
-  boxes={}
+function level_draw()
+  map(0,0,0,0,mw,mh)
+  rect(-2,-2,mw*8,mh*8,7)
 end
 
 function boxes_draw()
@@ -58,7 +89,7 @@ function push_boxes(pusher,dx,dy)
       local px,py=box.x,box.y
       box.x+=dx
       box.y+=dy
-      local tile=mget(box.x+mx,box.y+my)
+      local tile=mget(box.x,box.y)
       if (tile_blocking(tile)) then
         box.x,box.y=px,py
         return -1
@@ -83,7 +114,6 @@ function pl_on_box()
 end
 
 function map_init()
-  map(mx,my,0,0,mw,mh)
   local pals={
     {[1]=1,[12]=12},
     {[1]=8,[12]=14},
@@ -91,22 +121,34 @@ function map_init()
     {[1]=2,[12]=8}
   }
   local pos_tgts={}
-  for i=0,mw-1 do
-    for j=0,mh-1 do
-      local tile=mget(mx+i,my+j)
-      if (tile_moveable(tile)) then
+
+  for j=1,level.rows do
+    local line=level.lines[j]
+    -- printh(line,"blah")
+    for i=1,level.cols do
+      local char=sub(line,i,i)
+      -- printh(char,"blah")
+
+      local mx,my=i-1,j-1
+      local tile=17
+
+      if (char=="X") then
+        tile=16
+      elseif (char=="b") then
         local nb={
-          spr=tile,
+          spr=2,
           pal=rnd(pals),
-          x=i,
-          y=j,
+          x=mx,
+          y=my,
         }
         add(boxes,nb)
-        mset(mx+i,my+j,17)
+      elseif (char==".") then
+        add(pos_tgts, {x=mx,y=my})
+      elseif (char=="P") then
+        player_pos={x=mx,y=my}
       end
-      if (not(tile_moveable(tile) or tile_blocking(tile))) then
-        add(pos_tgts, {x=i,y=j})
-      end
+
+      mset(mx,my,tile)
     end
   end
 

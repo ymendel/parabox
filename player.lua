@@ -1,9 +1,9 @@
-function player_init()
+function player_init(pos)
   pl={
     spr=1,
     xf=false,
-    x=2,
-    y=2,
+    x=pos.x,
+    y=pos.y,
   }
 end
 
@@ -51,7 +51,7 @@ function pl_out_of_bounds()
 end
 
 function pl_hit_barrier()
-  local tile=mget(pl.x+mx, pl.y+my)
+  local tile=mget(pl.x, pl.y)
   return tile_blocking(tile)
 end
 
