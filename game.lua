@@ -3,15 +3,15 @@ function levels_init()
 
   local level1=[[
 XXXXXXXXXXX
-X.........X
+X........oX
 X.b..b....X
-X..P......X
+X...P.....X
 X....X....X
 X..Xb.....X
 X.........X
-X....XX...X
+X....XX..oX
 X.........X
-X.........X
+X...o.....X
 XXXXXXXXXXX]]
 
   add(levels,level1)
@@ -120,7 +120,6 @@ function map_init()
     {[1]=3,[12]=11},
     {[1]=2,[12]=8}
   }
-  local pos_tgts={}
 
   for j=1,level.rows do
     local line=level.lines[j]
@@ -130,6 +129,7 @@ function map_init()
       -- printh(char,"blah")
 
       local mx,my=i-1,j-1
+      local mpos={x=mx,y=my}
       local tile=17
 
       if (char=="X") then
@@ -142,20 +142,14 @@ function map_init()
           y=my,
         }
         add(boxes,nb)
-      elseif (char==".") then
-        add(pos_tgts, {x=mx,y=my})
+      elseif (char=="o") then
+        add(tgts,mpos)
       elseif (char=="P") then
-        player_pos={x=mx,y=my}
+        player_pos=mpos
       end
 
       mset(mx,my,tile)
     end
-  end
-
-  for box in all(boxes) do
-    local tgt=rnd(pos_tgts)
-    add(tgts,tgt)
-    del(pos_tgts,tgt)
   end
 end
 
