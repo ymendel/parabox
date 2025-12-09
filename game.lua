@@ -26,7 +26,7 @@ end
 
 function level_draw()
   map(0,0,0,0,mw,mh)
-  rect(-2,-2,mw*8,mh*8,7)
+  -- rect(-2,-2,mw*8,mh*8,7)
 end
 
 function boxes_draw()

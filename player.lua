@@ -57,5 +57,6 @@ end
 
 function player_draw()
   local coords=map_to_screen_coords(pl.x,pl.y)
-  spr(pl.spr,coords[1],coords[2],1,1,pl.xf)
+  local xoff=pl.xf and -1 or 0
+  spr(pl.spr,coords[1]+xoff,coords[2],1,1,pl.xf)
 end
