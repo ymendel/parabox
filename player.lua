@@ -19,7 +19,14 @@ function player_update()
 
   pl_do_move()
 
-  if (pl_out_of_bounds() or pl_hit_barrier()) pl.x,pl.y=px,py
+  if (pl_moving()) then
+    if (pl_out_of_bounds() or pl_hit_barrier()) then
+      pl.x,pl.y=px,py
+    else
+      -- is this enough? So much moving
+      record_undo(px,py)
+    end
+  end
 
   push_boxes(pl,pl.dx,pl.dy)
 
@@ -37,8 +44,13 @@ function pl_do_move()
   elseif (pl.dx<0) then
     pl.xf=true
   end
+
   pl.x+=pl.dx
   pl.y+=pl.dy
+end
+
+function pl_moving()
+  return pl.dx!=0 or pl.dy!=0
 end
 
 function pl_out_of_bounds()

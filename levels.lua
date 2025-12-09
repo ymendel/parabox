@@ -58,6 +58,7 @@ function level_init()
   won=false
   tgts={}
   boxes={}
+  undo_stack={}
 
   map_init()
   player_init(player_pos)

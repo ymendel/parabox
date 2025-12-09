@@ -12,6 +12,28 @@ function game_update()
   end
   player_update()
   check_tgts()
+  undo_update()
+end
+
+function undo_update()
+  if (btnp(🅾️)) then
+    local u=deli(undo_stack)
+    if (u) then
+      pl.x=u.pl.x
+      pl.y=u.pl.y
+    end
+  end
+end
+
+function record_undo(px,py)
+  local nu={
+    pl={x=px,y=py}
+  }
+  add(undo_stack,nu)
+  -- printh("undo stack:", "blah")
+  -- for u in all(undo_stack) do
+  --   printh(u.pl.x..","..u.pl.y,"blah")
+  -- end
 end
 
 function game_draw()
