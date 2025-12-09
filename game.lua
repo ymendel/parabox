@@ -1,45 +1,7 @@
-function levels_init()
-  levels={}
-
-  local level1=[[
-XXXXXXXXXXX
-X........oX
-X.b..b....X
-X...P.....X
-X....X....X
-X..Xb.....X
-X.........X
-X....XX..oX
-X.........X
-X...o.....X
-XXXXXXXXXXX]]
-
-  add(levels,level1)
-end
-
-function parse_level(level_str)
-  local lines=split(level_str,"\n")
-
-  local level={
-    lines=lines,
-    cols=#lines[1],
-    rows=#lines,
-  }
-  return level
-end
-
 function game_init()
+  lnum=1
   levels_init()
-  level=parse_level(levels[1])
-  mw=level.cols
-  mh=level.rows
-
-  won=false
-  tgts={}
-  boxes={}
-
-  map_init()
-  player_init(player_pos)
+  level_init()
 end
 
 function game_update()
@@ -70,10 +32,10 @@ end
 function boxes_draw()
   for box in all(boxes) do
     local coords=map_to_screen_coords(box.x,box.y)
-    pal(box.pal)
+    -- pal(box.pal)
     spr(box.spr,coords[1],coords[2])
   end
-  pal()
+  -- pal()
 end
 
 function tgts_draw()
@@ -114,12 +76,12 @@ function pl_on_box()
 end
 
 function map_init()
-  local pals={
-    {[1]=1,[12]=12},
-    {[1]=8,[12]=14},
-    {[1]=3,[12]=11},
-    {[1]=2,[12]=8}
-  }
+  -- local pals={
+  --  {[1]=1,[12]=12},
+  --  {[1]=8,[12]=14},
+  --  {[1]=3,[12]=11},
+  --  {[1]=2,[12]=8}
+  -- }
 
   for j=1,level.rows do
     local line=level.lines[j]
@@ -132,18 +94,15 @@ function map_init()
       local mpos={x=mx,y=my}
       local tile=17
 
-      if (char=="X") then
+      if (char=="#") then
         tile=16
-      elseif (char=="b") then
-        local nb={
-          spr=2,
-          pal=rnd(pals),
-          x=mx,
-          y=my,
-        }
-        add(boxes,nb)
-      elseif (char=="o") then
-        add(tgts,mpos)
+      elseif (char=="*") then
+        add_box(mpos)
+      elseif (char=="O") then
+        add_tgt(mpos)
+      elseif (char=="@") then
+        add_box(mpos)
+        add_tgt(mpos)
       elseif (char=="P") then
         player_pos=mpos
       end
@@ -151,6 +110,19 @@ function map_init()
       mset(mx,my,tile)
     end
   end
+end
+
+function add_box(pos)
+  local nb={
+    spr=2,
+    x=pos.x,
+    y=pos.y,
+  }
+  add(boxes,nb)
+end
+
+function add_tgt(pos)
+  add(tgts,pos)
 end
 
 function tile_blocking(tile)
