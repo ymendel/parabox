@@ -16,7 +16,7 @@ end
 
 function game_draw()
   cls()
-  camera(-20,-20)
+  camera(-64+mw*4,-64+mh*4)
   level_draw()
   boxes_draw()
   tgts_draw()
