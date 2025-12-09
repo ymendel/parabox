@@ -1,7 +1,8 @@
 function levels_init()
+  local level
   levels={}
 
-  local level1=[[
+  level=[[
 ###########
 #.........#
 #.*..*....#
@@ -13,8 +14,29 @@ function levels_init()
 #.........#
 #...O.....#
 ###########]]
+  add(levels,level)
 
-  add(levels,level1)
+    level=[[
+#########
+#####...#
+#P.*....#
+#.......#
+#.......#
+#.......#
+#....O..#
+#########]]
+  add(levels,level)
+
+    level=[[
+#########
+#####...#
+#P.*..#.#
+###.#...#
+###...###
+#####.###
+#####O###
+#########]]
+  add(levels,level)
 end
 
 function parse_level(level_str)
@@ -29,7 +51,7 @@ function parse_level(level_str)
 end
 
 function level_init()
-  level=parse_level(levels[1])
+  level=parse_level(levels[lnum])
   mw=level.cols
   mh=level.rows
 

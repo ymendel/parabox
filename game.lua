@@ -1,5 +1,5 @@
 function game_init()
-  lnum=1
+  lnum=lnum or 1
   levels_init()
   level_init()
 end
@@ -156,12 +156,17 @@ function same_position(a,b)
 end
 
 function win_init()
-  -- anything to do here?
   print("yayyyyyyyyyy",10,10,10)
+  print("press ❎ to continue")
 end
 
 function win_update()
-  -- anything to do here?
+  if (btnp(❎)) then
+    lnum+=1
+    state="game"
+    handle_state()
+    return
+  end
 end
 
 function win_draw()
