@@ -19,8 +19,6 @@ function undo_update()
   if (btnp(🅾️)) then
     local u=deli(undo_stack)
     do_undo(u)
-
-    debug_output_undo()
   end
 end
 
@@ -46,23 +44,6 @@ function record_undo()
     boxes=box_info,
   }
   add(undo_stack,nu)
-
-  debug_output_undo()
-end
-
-function debug_output_undo()
-  local filename="undo"
-  printh("undo stack:",filename,true)
-  for n,u in ipairs(undo_stack) do
-    printh("-------\nent - "..n.."\n",filename)
-    printh("pl - "..u.pl.x..","..u.pl.y,filename)
-    for i,box in ipairs(u.boxes) do
-      local boxx=box.x or "nil"
-      local boxy=box.y or "nil"
-      printh("box "..i.." - "..boxx..","..boxy,filename)
-    end
-    printh("-------\n",filename)
-  end
 end
 
 function game_draw()
@@ -96,10 +77,14 @@ function tgts_draw()
   end
 end
 
+function handle_box_push()
+  foreach(boxes,record_pos)
+  push_boxes(pl,pl.dx,pl.dy)
+end
+
 function push_boxes(pusher,dx,dy)
   for box in all(boxes) do
     if (pusher~=box and same_position(pusher,box)) then
-      record_pos(box)
       box.x+=dx
       box.y+=dy
       local tile=mget(box.x,box.y)

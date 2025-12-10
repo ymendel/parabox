@@ -19,7 +19,7 @@ function player_update()
     pl_do_move()
 
     if (pl_out_of_bounds() or pl_hit_barrier()) revert_move(pl)
-    push_boxes(pl,pl.dx,pl.dy)
+    handle_box_push()
     if (pl_on_box()) revert_move(pl)
 
     if (pl_has_moved()) record_undo()
