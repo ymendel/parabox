@@ -18,22 +18,51 @@ end
 function undo_update()
   if (btnp(🅾️)) then
     local u=deli(undo_stack)
-    if (u) then
-      pl.x=u.pl.x
-      pl.y=u.pl.y
+    do_undo(u)
+
+    debug_output_undo()
+  end
+end
+
+function do_undo(u)
+  if (u) then
+    pl.x,pl.y=u.pl.x,u.pl.y
+    for i,box in ipairs(boxes) do
+      local ubox=u.boxes[i]
+      box.x,box.y=ubox.x,ubox.y
+      box.px,box.py=ubox.x,ubox.y
     end
   end
 end
 
-function record_undo(px,py)
+function record_undo()
+  local box_info={}
+  for i,box in ipairs(boxes) do
+    box_info[i]={x=box.px,y=box.py}
+  end
+
   local nu={
-    pl={x=px,y=py}
+    pl={x=pl.px,y=pl.py},
+    boxes=box_info,
   }
   add(undo_stack,nu)
-  -- printh("undo stack:", "blah")
-  -- for u in all(undo_stack) do
-  --   printh(u.pl.x..","..u.pl.y,"blah")
-  -- end
+
+  debug_output_undo()
+end
+
+function debug_output_undo()
+  local filename="undo"
+  printh("undo stack:",filename,true)
+  for n,u in ipairs(undo_stack) do
+    printh("-------\nent - "..n.."\n",filename)
+    printh("pl - "..u.pl.x..","..u.pl.y,filename)
+    for i,box in ipairs(u.boxes) do
+      local boxx=box.x or "nil"
+      local boxy=box.y or "nil"
+      printh("box "..i.." - "..boxx..","..boxy,filename)
+    end
+    printh("-------\n",filename)
+  end
 end
 
 function game_draw()
@@ -69,18 +98,18 @@ end
 
 function push_boxes(pusher,dx,dy)
   for box in all(boxes) do
-    if (pusher~=box and pusher.x==box.x and pusher.y==box.y) then
-      local px,py=box.x,box.y
+    if (pusher~=box and same_position(pusher,box)) then
+      record_pos(box)
       box.x+=dx
       box.y+=dy
       local tile=mget(box.x,box.y)
       if (tile_blocking(tile)) then
-        box.x,box.y=px,py
+        revert_move(box)
         return -1
       else
         local err=push_boxes(box,dx,dy)
         if (err==-1) then
-          box.x,box.y=px,py
+          revert_move(box)
           return -1
         end
       end
@@ -88,9 +117,17 @@ function push_boxes(pusher,dx,dy)
   end
 end
 
+function record_pos(mvr)
+  mvr.px,mvr.py=mvr.x,mvr.y
+end
+
+function revert_move(mvr)
+  mvr.x,mvr.y=mvr.px,mvr.py
+end
+
 function pl_on_box()
   for box in all(boxes) do
-    if (pl.x==box.x and pl.y==box.y) then
+    if (same_position(pl,box)) then
       return true
     end
   end
@@ -140,6 +177,7 @@ function add_box(pos)
     x=pos.x,
     y=pos.y,
   }
+  record_pos(nb)
   add(boxes,nb)
 end
 

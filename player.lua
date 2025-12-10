@@ -8,8 +8,6 @@ function player_init(pos)
 end
 
 function player_update()
-  local px,py=pl.x,pl.y
-
   pl_init_move()
 
   if (btnp(⬅️)) pl.dx=-1
@@ -17,25 +15,20 @@ function player_update()
   if (btnp(⬆️)) pl.dy=-1
   if (btnp(⬇️)) pl.dy=1
 
-  pl_do_move()
-
   if (pl_moving()) then
-    if (pl_out_of_bounds() or pl_hit_barrier()) then
-      pl.x,pl.y=px,py
-    else
-      -- is this enough? So much moving
-      record_undo(px,py)
-    end
+    pl_do_move()
+
+    if (pl_out_of_bounds() or pl_hit_barrier()) revert_move(pl)
+    push_boxes(pl,pl.dx,pl.dy)
+    if (pl_on_box()) revert_move(pl)
+
+    if (pl_has_moved()) record_undo()
   end
-
-  push_boxes(pl,pl.dx,pl.dy)
-
-  if (pl_on_box()) pl.x,pl.y=px,py
 end
 
 function pl_init_move()
-  pl.dx=0
-  pl.dy=0
+  record_pos(pl)
+  pl.dx,pl.dy=0,0
 end
 
 function pl_do_move()
@@ -50,7 +43,11 @@ function pl_do_move()
 end
 
 function pl_moving()
-  return pl.dx!=0 or pl.dy!=0
+  return pl.dx~=0 or pl.dy~=0
+end
+
+function pl_has_moved()
+  return pl.x~=pl.px or pl.y~=pl.py
 end
 
 function pl_out_of_bounds()
