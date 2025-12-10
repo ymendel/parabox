@@ -24,6 +24,12 @@ end
 
 function do_undo(u)
   if (u) then
+    local dx=pl.x-u.pl.x
+    if (dx<0) then
+      pl.xf=true
+    elseif (dx>0) then
+      pl.xf=false
+    end
     pl.x,pl.y=u.pl.x,u.pl.y
     for i,box in ipairs(boxes) do
       local ubox=u.boxes[i]
