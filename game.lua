@@ -24,17 +24,16 @@ end
 
 function do_undo(u)
   if (u) then
-    local dx=pl.x-u.pl.x
+    local dx=pl.pos.x-u.pl.x
     if (dx<0) then
       pl.xf=true
     elseif (dx>0) then
       pl.xf=false
     end
-    pl.x,pl.y=u.pl.x,u.pl.y
+    pl.pos=tab_dupe(u.pl)
     for i,box in ipairs(boxes) do
       local ubox=u.boxes[i]
-      box.x,box.y=ubox.x,ubox.y
-      box.px,box.py=ubox.x,ubox.y
+      box.pos=tab_dupe(ubox)
     end
   end
 end
@@ -42,11 +41,11 @@ end
 function record_undo()
   local box_info={}
   for i,box in ipairs(boxes) do
-    box_info[i]={x=box.px,y=box.py}
+    box_info[i]=tab_dupe(box.prevpos)
   end
 
   local nu={
-    pl={x=pl.px,y=pl.py},
+    pl=tab_dupe(pl.prevpos),
     boxes=box_info,
   }
   add(undo_stack,nu)
@@ -69,7 +68,7 @@ end
 
 function boxes_draw()
   for box in all(boxes) do
-    local coords=map_to_screen_coords(box.x,box.y)
+    local coords=pos_to_screen_coords(box.pos)
     -- pal(box.pal)
     spr(box.spr,coords[1],coords[2])
   end
@@ -78,7 +77,7 @@ end
 
 function tgts_draw()
   for tgt in all(tgts) do
-    local coords=map_to_screen_coords(tgt.x,tgt.y)
+    local coords=pos_to_screen_coords(tgt.pos)
     rectdim(coords[1],coords[2],7,7,7)
   end
 end
@@ -91,9 +90,8 @@ end
 function push_boxes(pusher,dx,dy)
   for box in all(boxes) do
     if (pusher~=box and same_position(pusher,box)) then
-      box.x+=dx
-      box.y+=dy
-      local tile=mget(box.x,box.y)
+      move(box,dx,dy)
+      local tile=pos_tile(box.pos)
       if (tile_blocking(tile)) then
         revert_move(box)
         return -1
@@ -108,12 +106,17 @@ function push_boxes(pusher,dx,dy)
   end
 end
 
+function move(mvr,dx,dy)
+  mvr.pos.x+=dx
+  mvr.pos.y+=dy
+end
+
 function record_pos(mvr)
-  mvr.px,mvr.py=mvr.x,mvr.y
+  mvr.prevpos=tab_dupe(mvr.pos)
 end
 
 function revert_move(mvr)
-  mvr.x,mvr.y=mvr.px,mvr.py
+  mvr.pos=mvr.prevpos
 end
 
 function pl_on_box()
@@ -162,18 +165,19 @@ function map_init()
   end
 end
 
-function add_box(pos)
+function add_box(mpos)
   local nb={
     spr=2,
-    x=pos.x,
-    y=pos.y,
+    pos=tab_dupe(mpos)
   }
-  record_pos(nb)
   add(boxes,nb)
 end
 
-function add_tgt(pos)
-  add(tgts,pos)
+function add_tgt(mpos)
+  local nt={
+    pos=tab_dupe(mpos)
+  }
+  add(tgts,nt)
 end
 
 function tile_blocking(tile)
@@ -203,7 +207,7 @@ function tgt_has_box(tgt)
 end
 
 function same_position(a,b)
-  return a.x==b.x and a.y==b.y
+  return tab_equal(a.pos,b.pos)
 end
 
 function win_init()

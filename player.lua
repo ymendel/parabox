@@ -1,9 +1,8 @@
-function player_init(pos)
+function player_init(mpos)
   pl={
     spr=1,
     xf=false,
-    x=pos.x,
-    y=pos.y,
+    pos=tab_dupe(mpos),
   }
 end
 
@@ -38,8 +37,7 @@ function pl_do_move()
     pl.xf=true
   end
 
-  pl.x+=pl.dx
-  pl.y+=pl.dy
+  move(pl,pl.dx,pl.dy)
 end
 
 function pl_moving()
@@ -47,25 +45,27 @@ function pl_moving()
 end
 
 function pl_has_moved()
-  return pl.x~=pl.px or pl.y~=pl.py
+  return not tab_equal(pl.pos,pl.prevpos)
 end
 
+-- do I still need this? the levels will be enclosed? always?
+-- Also, if I need it I need to get info from the level, not just use 15
 function pl_out_of_bounds()
-  local midx=mid(0,pl.x,15)
-  local midy=mid(0,pl.y,15)
+  local midx=mid(0,pl.pos.x,15)
+  local midy=mid(0,pl.pos.y,15)
 
-  if (midx~=pl.x or midy~=pl.y) return true
+  if (midx~=pl.pos.x or midy~=pl.pos.y) return true
 
   return false
 end
 
 function pl_hit_barrier()
-  local tile=mget(pl.x, pl.y)
+  local tile=pos_tile(pl.pos)
   return tile_blocking(tile)
 end
 
 function player_draw()
-  local coords=map_to_screen_coords(pl.x,pl.y)
+  local coords=pos_to_screen_coords(pl.pos)
   local xoff=pl.xf and -1 or 0
   spr(pl.spr,coords[1]+xoff,coords[2],1,1,pl.xf)
 end
