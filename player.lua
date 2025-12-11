@@ -21,7 +21,7 @@ function player_update()
     handle_box_push()
     if (pl_on_box()) revert_move(pl)
 
-    if (pl_has_moved()) record_undo()
+    if (has_moved(pl)) record_undo()
   end
 end
 
@@ -42,10 +42,6 @@ end
 
 function pl_moving()
   return pl.dx~=0 or pl.dy~=0
-end
-
-function pl_has_moved()
-  return not tab_equal(pl.pos,pl.prevpos)
 end
 
 -- do I still need this? the levels will be enclosed? always?

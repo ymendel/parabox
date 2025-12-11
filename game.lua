@@ -24,6 +24,7 @@ end
 
 function do_undo(u)
   if (u) then
+    -- TODO: see if this can work, or if facing should be recorded
     local dx=pl.pos.x-u.pl.x
     if (dx<0) then
       pl.xf=true
@@ -31,8 +32,8 @@ function do_undo(u)
       pl.xf=false
     end
     pl.pos=tab_dupe(u.pl)
-    for i,box in ipairs(boxes) do
-      local ubox=u.boxes[i]
+    for i,ubox in pairs(u.boxes) do
+      local box=boxes[i]
       box.pos=tab_dupe(ubox)
     end
   end
@@ -41,7 +42,7 @@ end
 function record_undo()
   local box_info={}
   for i,box in ipairs(boxes) do
-    box_info[i]=tab_dupe(box.prevpos)
+    if (has_moved(box)) box_info[i]=tab_dupe(box.prevpos)
   end
 
   local nu={
@@ -117,6 +118,10 @@ end
 
 function revert_move(mvr)
   mvr.pos=mvr.prevpos
+end
+
+function has_moved(mvr)
+  return not tab_equal(mvr.pos,mvr.prevpos)
 end
 
 function pl_on_box()
