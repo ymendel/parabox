@@ -71,7 +71,8 @@ function boxes_draw()
   for box in all(boxes) do
     local coords=pos_to_screen_coords(box.pos)
     -- pal(box.pal)
-    spr(box.spr,coords[1],coords[2])
+    -- spr(box.spr,coords[1],coords[2])
+    rectdim(coords[1],coords[2],7,7,12,true)
   end
   -- pal()
 end
@@ -79,13 +80,17 @@ end
 function tgts_draw()
   for tgt in all(tgts) do
     local coords=pos_to_screen_coords(tgt.pos)
-    rectdim(coords[1],coords[2],7,7,7)
+    local c=tgt.box and 7 or 6
+    rectdim(coords[1],coords[2],7,7,c)
   end
 end
 
 function handle_box_push()
   foreach(boxes,record_pos)
   push_boxes(pl,pl.dx,pl.dy)
+  for tgt in all(tgts) do
+    tgt.box=tgt_has_box(tgt)
+  end
 end
 
 function push_boxes(pusher,dx,dy)
@@ -195,7 +200,7 @@ end
 
 function check_tgts()
   for tgt in all(tgts) do
-    if (not tgt_has_box(tgt)) then
+    if (not tgt.box) then
       return false
     end
   end

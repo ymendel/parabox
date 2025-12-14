@@ -17,8 +17,9 @@ function pos_to_screen_coords(pos)
   return map_to_screen_coords(pos.x,pos.y)
 end
 
-function rectdim(x,y,w,h,col)
-  rect(x,y,x+w-1,y+h-1,col)
+function rectdim(x,y,w,h,col,fill)
+  local rectfn=fill and rectfill or rect
+  rectfn(x,y,x+w-1,y+h-1,col)
 end
 
 function pos_tile(pos)
