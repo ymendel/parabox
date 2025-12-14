@@ -85,29 +85,32 @@ function parse_level(level_info)
     map=parse_level_map(level_info)
   elseif ltype=="table" then
     map=parse_level_map(level_info.map)
+    x=map.cols+1
     for k,v in pairs(level_info.sublevels) do
-      sublevels[k]=parse_level_map(v)
+      sublevels[k]=parse_level_map(v,x)
     end
   end
 
   return {map=map,sublevels=sublevels}
 end
 
-function parse_level_map(level_map)
+function parse_level_map(level_map,x,y)
   local lines=split(level_map,"\n")
 
   local map={
     lines=lines,
     cols=#lines[1],
     rows=#lines,
+    x=x or 0,
+    y=y or 0,
   }
   return map
 end
 
 function level_init()
   level=parse_level(levels[lnum])
-  mw=level.map.cols
-  mh=level.map.rows
+  mx,my=level.map.x,level.map.y
+  mw,mh=level.map.cols,level.map.rows
 
   won=false
   tgts={}

@@ -1,5 +1,5 @@
 function game_init()
-  lnum=lnum or 1
+  lnum=lnum or 2
   levels_init()
   level_init()
 end
@@ -63,18 +63,57 @@ function game_draw()
 end
 
 function level_draw()
-  map(0,0,0,0,mw,mh)
+  add(debug,tab_to_string({mx=mx,my=my,mw=mw,mh=mh}))
+  map(mx,my,0,0,mw,mh)
   -- rect(-2,-2,mw*8,mh*8,7)
 end
 
 function boxes_draw()
-  for box in all(boxes) do
-    local coords=pos_to_screen_coords(box.pos)
-    -- pal(box.pal)
-    -- spr(box.spr,coords[1],coords[2])
+  foreach(boxes,draw_box)
+end
+
+function draw_box(box)
+  local coords=pos_to_screen_coords(box.pos)
+  -- pal(box.pal)
+  -- spr(box.spr,coords[1],coords[2])
+  if (box.sublevel) then
+    rectdim(coords[1],coords[2],7,7,3,true)
+    draw_sublevel(box.sublevel,coords[1],coords[2])
+  else
     rectdim(coords[1],coords[2],7,7,12,true)
   end
-  -- pal()
+end
+
+function draw_sublevel(sublevel,x,y)
+  sublevel_offset_parse=function(char,mpos)
+    ox,oy=x,y
+    do_sublevel_parse(char,mpos)
+  end
+
+  map_parse(sublevel,sublevel_offset_parse)
+end
+
+function do_sublevel_parse(char,mpos)
+  local color=11
+  local sublevel=level.sublevels[char]
+
+  if (char=="#") then
+    color=3
+  elseif (char=="*") then
+    color=12
+  elseif (char=="O") then
+    color=6
+  elseif (char=="@") then
+    -- hmmmmm
+    -- add_box(mpos)
+    -- add_tgt(mpos)
+  elseif (char=="P") then
+    color=14
+  elseif (sublevel) then
+    color=3
+  end
+
+  pset(mpos.x+ox,mpos.y+oy,color)
 end
 
 function tgts_draw()
@@ -147,6 +186,11 @@ function enter_sublevel(sublevel,mvr,dx,dy)
   end
 
   add(debug,tab_to_string(entr))
+  if (mvr==pl) then
+    add(debug,"hello?")
+    mx,my=sublevel.x,sublevel.y
+    mw,mh=sublevel.rows,sublevel.cols
+  end
 end
 
 function pl_on_box()
@@ -158,44 +202,54 @@ function pl_on_box()
   return false
 end
 
-function map_init()
-  -- local pals={
-  --  {[1]=1,[12]=12},
-  --  {[1]=8,[12]=14},
-  --  {[1]=3,[12]=11},
-  --  {[1]=2,[12]=8}
-  -- }
-
-  for j=1,level.map.rows do
-    local line=level.map.lines[j]
-    -- printh(line,"blah")
-    for i=1,level.map.cols do
+function map_parse(map, callback)
+  for j=1,map.rows do
+    local line=map.lines[j]
+    for i=1,map.cols do
       local char=sub(line,i,i)
-      -- printh(char,"blah")
 
       local mx,my=i-1,j-1
       local mpos={x=mx,y=my}
-      local tile=17
-      local sublevel=level.sublevels[char]
 
-      if (char=="#") then
-        tile=16
-      elseif (char=="*") then
-        add_box(mpos)
-      elseif (char=="O") then
-        add_tgt(mpos)
-      elseif (char=="@") then
-        add_box(mpos)
-        add_tgt(mpos)
-      elseif (char=="P") then
-        player_pos=mpos
-      elseif (sublevel) then
-        add_box(mpos,sublevel)
-      end
-
-      mset(mx,my,tile)
+      callback(char,mpos)
     end
   end
+end
+
+function map_init()
+  ox,oy=mx,my
+  map_parse(level.map,do_mapset_parse)
+
+  for sublevel in all(level.sublevels) do
+    sublevel_offset_parse=function(char,mpos)
+      ox,oy=sublevel.x,sublevel.y
+      do_mapset_parse(char,mpos)
+    end
+
+    map_parse(sublevel,sublevel_offset_parse)
+  end
+end
+
+function do_mapset_parse(char,mpos)
+  local tile=17
+  local sublevel=level.sublevels[char]
+
+  if (char=="#") then
+    tile=16
+  elseif (char=="*") then
+    add_box(mpos)
+  elseif (char=="O") then
+    add_tgt(mpos)
+  elseif (char=="@") then
+    add_box(mpos)
+    add_tgt(mpos)
+  elseif (char=="P") then
+    player_pos=mpos
+  elseif (sublevel) then
+    add_box(mpos,sublevel)
+  end
+
+  mset(mpos.x+ox,mpos.y+oy,tile)
 end
 
 function add_box(mpos,sublevel)
