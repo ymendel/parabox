@@ -19,7 +19,14 @@ function player_update()
 
     if (pl_out_of_bounds() or pl_hit_barrier()) revert_move(pl)
     handle_box_push()
-    if (pl_on_box()) revert_move(pl)
+    local pl_box=pl_on_box()
+    if (pl_box) then
+      if (pl_box.sublevel) then
+        enter_sublevel(pl_box.sublevel,pl,pl.dx,pl.dy)
+      else
+        revert_move(pl)
+      end
+    end
 
     if (has_moved(pl)) record_undo()
   end

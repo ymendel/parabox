@@ -129,10 +129,30 @@ function has_moved(mvr)
   return not tab_equal(mvr.pos,mvr.prevpos)
 end
 
+function enter_sublevel(sublevel,mvr,dx,dy)
+  -- determine entrance = middle of the side entered
+  -- NOTE: keep sublevels odd dimensions
+  local maxx,maxy=sublevel.cols,sublevel.rows
+  local midx,midy=maxx\2,maxy\2
+
+  local entr={}
+  if (dx==1) then
+    entr={x=0,y=midy}
+  elseif (dx==-1) then
+    entr={x=maxx,y=midy}
+  elseif (dy==1) then
+    entr={x=midx,y=0}
+  elseif (dy==-1) then
+    entr={x=midx,y=maxy}
+  end
+
+  add(debug,tab_to_string(entr))
+end
+
 function pl_on_box()
   for box in all(boxes) do
     if (same_position(pl,box)) then
-      return true
+      return box
     end
   end
   return false
@@ -146,16 +166,17 @@ function map_init()
   --  {[1]=2,[12]=8}
   -- }
 
-  for j=1,level.rows do
-    local line=level.lines[j]
+  for j=1,level.map.rows do
+    local line=level.map.lines[j]
     -- printh(line,"blah")
-    for i=1,level.cols do
+    for i=1,level.map.cols do
       local char=sub(line,i,i)
       -- printh(char,"blah")
 
       local mx,my=i-1,j-1
       local mpos={x=mx,y=my}
       local tile=17
+      local sublevel=level.sublevels[char]
 
       if (char=="#") then
         tile=16
@@ -168,6 +189,8 @@ function map_init()
         add_tgt(mpos)
       elseif (char=="P") then
         player_pos=mpos
+      elseif (sublevel) then
+        add_box(mpos,sublevel)
       end
 
       mset(mx,my,tile)
@@ -175,10 +198,11 @@ function map_init()
   end
 end
 
-function add_box(mpos)
+function add_box(mpos,sublevel)
   local nb={
     spr=2,
-    pos=tab_dupe(mpos)
+    pos=tab_dupe(mpos),
+    sublevel=sublevel,
   }
   add(boxes,nb)
 end
