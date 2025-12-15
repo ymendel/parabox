@@ -1,8 +1,10 @@
 function player_init(mpos)
+  local pos=tab_dupe(mpos)
+  pos.level="main"
   pl={
     spr=1,
     xf=false,
-    pos=tab_dupe(mpos),
+    pos=pos,
   }
 end
 

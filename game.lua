@@ -54,7 +54,7 @@ end
 
 function game_draw()
   cls()
-  camera(-64+mw*4,-64+mh*4)
+  -- camera(-64+mw*4,-64+mh*4)
   level_draw()
   boxes_draw()
   tgts_draw()
@@ -63,8 +63,9 @@ function game_draw()
 end
 
 function level_draw()
-  add(debug,tab_to_string({mx=mx,my=my,mw=mw,mh=mh}))
-  map(mx,my,0,0,mw,mh)
+  -- add(debug,tab_to_string({mx=mx,my=my,mw=mw,mh=mh}))
+  -- map(mx,my,0,0,mw,mh)
+  map()
   -- rect(-2,-2,mw*8,mh*8,7)
 end
 
@@ -87,6 +88,7 @@ end
 function draw_sublevel(sublevel,x,y)
   sublevel_offset_parse=function(char,mpos)
     ox,oy=x,y
+    oy+=(7-sublevel.rows)\2
     do_sublevel_parse(char,mpos)
   end
 
@@ -133,7 +135,10 @@ function handle_box_push()
 end
 
 function push_boxes(pusher,dx,dy)
+  -- printh("\npusher "..tab_to_string(pusher.pos),"blah")
+  -- add(debug,tab_to_string(pusher.pos))
   for box in all(boxes) do
+    -- printh("box "..tab_to_string(box.pos),"blah")
     if (pusher~=box and same_position(pusher,box)) then
       move(box,dx,dy)
       local tile=pos_tile(box.pos)
@@ -184,10 +189,12 @@ function enter_sublevel(sublevel,mvr,dx,dy)
   elseif (dy==-1) then
     entr={x=midx,y=maxy}
   end
+  mvr.pos=entr
+  mvr.pos.level=sublevel.key
 
-  add(debug,tab_to_string(entr))
+  -- add(debug,tab_to_string(entr))
   if (mvr==pl) then
-    add(debug,"hello?")
+    -- add(debug,"hello?")
     mx,my=sublevel.x,sublevel.y
     mw,mh=sublevel.rows,sublevel.cols
   end
@@ -217,16 +224,20 @@ function map_parse(map, callback)
 end
 
 function map_init()
-  ox,oy=mx,my
+  parsing_level="main"
+  -- printh("parsing level "..parsing_level, "blah")
+  ox,oy=level.map.x,level.map.y
   map_parse(level.map,do_mapset_parse)
 
-  for sublevel in all(level.sublevels) do
-    sublevel_offset_parse=function(char,mpos)
+  for k,sublevel in pairs(level.sublevels) do
+    sublevel_parse=function(char,mpos)
+      parsing_level=k
+      -- printh("parsing level "..parsing_level, "blah")
       ox,oy=sublevel.x,sublevel.y
       do_mapset_parse(char,mpos)
     end
 
-    map_parse(sublevel,sublevel_offset_parse)
+    map_parse(sublevel,sublevel_parse)
   end
 end
 
@@ -253,17 +264,21 @@ function do_mapset_parse(char,mpos)
 end
 
 function add_box(mpos,sublevel)
+  local pos=tab_dupe(mpos)
+  pos.level=parsing_level
   local nb={
     spr=2,
-    pos=tab_dupe(mpos),
+    pos=pos,
     sublevel=sublevel,
   }
   add(boxes,nb)
 end
 
 function add_tgt(mpos)
+  local pos=tab_dupe(mpos)
+  pos.level=parsing_level
   local nt={
-    pos=tab_dupe(mpos)
+    pos=pos
   }
   add(tgts,nt)
 end

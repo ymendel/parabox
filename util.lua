@@ -13,7 +13,13 @@ function map_to_screen_coords(x,y)
   return {x*8,y*8}
 end
 
-function pos_to_screen_coords(pos)
+function pos_to_screen_coords(ipos)
+  local pos=tab_dupe(ipos)
+  local sublevel=level.sublevels[pos.level]
+  if (sublevel) then
+    pos.x+=sublevel.x
+    pos.y+=sublevel.y
+  end
   return map_to_screen_coords(pos.x,pos.y)
 end
 
