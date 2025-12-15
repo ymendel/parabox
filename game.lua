@@ -141,9 +141,7 @@ function push_boxes(pusher,dx,dy)
     -- printh("box "..tab_to_string(box.pos),"blah")
     if (pusher~=box and same_position(pusher,box)) then
       move(box,dx,dy)
-      local tile=pos_tile(box.pos)
-      if (tile_blocking(tile)) then
-        revert_move(box)
+      if (check_blocking(box)) then
         return -1
       else
         local err=push_boxes(box,dx,dy)
@@ -176,7 +174,7 @@ end
 function enter_sublevel(sublevel,mvr,dx,dy)
   -- determine entrance = middle of the side entered
   -- NOTE: keep sublevels odd dimensions
-  local maxx,maxy=sublevel.cols,sublevel.rows
+  local maxx,maxy=sublevel.cols-1,sublevel.rows-1
   local midx,midy=maxx\2,maxy\2
 
   local entr={}
@@ -198,6 +196,8 @@ function enter_sublevel(sublevel,mvr,dx,dy)
     mx,my=sublevel.x,sublevel.y
     mw,mh=sublevel.rows,sublevel.cols
   end
+
+  check_blocking(pl)
 end
 
 function pl_on_box()
@@ -281,6 +281,18 @@ function add_tgt(mpos)
     pos=pos
   }
   add(tgts,nt)
+end
+
+function check_blocking(mvr)
+  if (pos_blocked(mvr.pos)) then
+    revert_move(mvr)
+    return true
+  end
+end
+
+function pos_blocked(pos)
+  local tile=pos_tile(pos)
+  return tile_blocking(tile)
 end
 
 function tile_blocking(tile)

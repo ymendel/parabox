@@ -59,7 +59,7 @@ function levels_init()
 #########]]
   sublevel_map=[[
 #######
-#....##
+#.....#
 ...*..#
 #...O.#
 #######]]
@@ -86,12 +86,12 @@ function parse_level(level_info)
   elseif ltype=="table" then
     map=parse_level_map(level_info.map)
     local x,y=0,0
-    x+=map.cols
+    x+=map.cols+1
     for k,v in pairs(level_info.sublevels) do
       -- TODO: handle wrapping when map goes too wide
       local submap=parse_level_map(v,x,y)
       submap.key=k
-      x+=submap.cols
+      x+=submap.cols+1
       sublevels[k]=submap
     end
   end

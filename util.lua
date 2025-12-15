@@ -14,13 +14,18 @@ function map_to_screen_coords(x,y)
 end
 
 function pos_to_screen_coords(ipos)
-  local pos=tab_dupe(ipos)
-  local sublevel=level.sublevels[pos.level]
+  local pos=adjust_position(ipos)
+  return map_to_screen_coords(pos.x,pos.y)
+end
+
+function adjust_position(ipos)
+  local pos={x=ipos.x,y=ipos.y}
+  local sublevel=level.sublevels[ipos.level]
   if (sublevel) then
     pos.x+=sublevel.x
     pos.y+=sublevel.y
   end
-  return map_to_screen_coords(pos.x,pos.y)
+  return pos
 end
 
 function rectdim(x,y,w,h,col,fill)
@@ -28,7 +33,8 @@ function rectdim(x,y,w,h,col,fill)
   rectfn(x,y,x+w-1,y+h-1,col)
 end
 
-function pos_tile(pos)
+function pos_tile(ipos)
+  local pos=adjust_position(ipos)
   return mget(pos.x,pos.y)
 end
 

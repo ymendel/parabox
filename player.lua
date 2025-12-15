@@ -16,10 +16,11 @@ function player_update()
   if (btnp(⬆️)) pl.dy=-1
   if (btnp(⬇️)) pl.dy=1
 
+  add(debug,tab_to_string(pl.pos))
   if (pl_moving()) then
     pl_do_move()
 
-    if (pl_out_of_bounds() or pl_hit_barrier()) revert_move(pl)
+    check_blocking(pl)
     handle_box_push()
     local pl_box=pl_on_box()
     if (pl_box) then
@@ -62,11 +63,6 @@ function pl_out_of_bounds()
   if (midx~=pl.pos.x or midy~=pl.pos.y) return true
 
   return false
-end
-
-function pl_hit_barrier()
-  local tile=pos_tile(pl.pos)
-  return tile_blocking(tile)
 end
 
 function player_draw()
