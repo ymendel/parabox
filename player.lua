@@ -22,7 +22,7 @@ function player_update()
 
     check_blocking(pl)
     handle_box_push()
-    local pl_box=pl_on_box()
+    local pl_box=box_at_pos(pl)
     if (pl_box) then
       if (pl_box.sublevel) then
         enter_sublevel(pl_box.sublevel,pl,pl.dx,pl.dy)

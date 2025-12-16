@@ -158,10 +158,15 @@ function push_boxes(pusher,dx,dy)
       if (check_blocking(box)) then
         return -1
       else
-        local err=push_boxes(box,dx,dy)
-        if (err==-1) then
-          revert_move(box)
-          return -1
+        local res=push_boxes(box,dx,dy)
+        if (res==-1) then
+          local res_box=box_at_pos(box)
+          if (res_box.sublevel) then
+            enter_sublevel(res_box.sublevel,box,dx,dy)
+          else
+            revert_move(box)
+            return -1
+          end
         end
       end
       check_bounds(box,dx,dy)
@@ -204,6 +209,7 @@ function enter_sublevel(sublevel,mvr,dx,dy)
   end
   mvr.pos=entr
   mvr.pos.level=sublevel.key
+  push_boxes(mvr,dx,dy)
 
   -- add(debug,tab_to_string(entr))
   if (mvr==pl) then
@@ -215,9 +221,9 @@ function enter_sublevel(sublevel,mvr,dx,dy)
   check_blocking(pl)
 end
 
-function pl_on_box()
+function box_at_pos(mvr)
   for box in all(boxes) do
-    if (same_position(pl,box)) then
+    if (box~=mvr and same_position(mvr,box)) then
       return box
     end
   end
@@ -238,7 +244,16 @@ function map_parse(map, callback)
   end
 end
 
+function clear_map()
+  for x=0,64 do
+    for y=0,64 do
+      mset(x,y,0)
+    end
+  end
+end
+
 function map_init()
+  clear_map()
   parsing_level="main"
   -- printh("parsing level "..parsing_level, "blah")
   ox,oy=level.map.x,level.map.y
