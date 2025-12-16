@@ -29,6 +29,8 @@ function player_update()
       else
         revert_move(pl)
       end
+    else
+      check_bounds(pl,pl.dx,pl.dy)
     end
 
     if (has_moved(pl)) record_undo()
@@ -52,17 +54,6 @@ end
 
 function pl_moving()
   return pl.dx~=0 or pl.dy~=0
-end
-
--- do I still need this? the levels will be enclosed? always?
--- Also, if I need it I need to get info from the level, not just use 15
-function pl_out_of_bounds()
-  local midx=mid(0,pl.pos.x,15)
-  local midy=mid(0,pl.pos.y,15)
-
-  if (midx~=pl.pos.x or midy~=pl.pos.y) return true
-
-  return false
 end
 
 function player_draw()

@@ -150,6 +150,7 @@ function push_boxes(pusher,dx,dy)
           return -1
         end
       end
+      check_bounds(box,dx,dy)
     end
   end
 end
@@ -271,6 +272,7 @@ function add_box(mpos,sublevel)
     pos=pos,
     sublevel=sublevel,
   }
+  if (sublevel) sublevel.box=nb
   add(boxes,nb)
 end
 
@@ -281,6 +283,43 @@ function add_tgt(mpos)
     pos=pos
   }
   add(tgts,nt)
+end
+
+function check_bounds(mvr,dx,dy)
+  local mpos=mvr.pos
+  local mlevel=get_pos_level(mpos)
+  
+  local maxx,maxy=mlevel.cols-1,mlevel.rows-1
+  local midx=mid(0,mpos.x,maxx)
+  local midy=mid(0,mpos.y,maxy)
+
+  if (midx==mpos.x and midy==mpos.y) return
+
+  local lbox=mlevel.box
+  mvr.pos=tab_dupe(lbox.pos)
+
+  if (mpos.x<0) then
+    mvr.pos.x-=1
+  elseif (mpos.x>maxx) then
+    mvr.pos.x+=1
+  elseif (mpos.y<0) then
+    mvr.pos.y-=1
+  elseif (mpos.y>maxy) then
+    mvr.pos.y+=1
+  end
+
+  push_boxes(mvr,dx,dy)
+end
+
+-- TODO: extract a lot of this position stuff to a new file
+function get_pos_level(pos)
+  local lkey=pos.level
+  if (lkey=="main") then
+    -- TODO: make sublevel and levels similar, either both map or not
+    return level.map
+  else
+    return level.sublevels[lkey]
+  end
 end
 
 function check_blocking(mvr)

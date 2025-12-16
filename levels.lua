@@ -67,13 +67,19 @@ function levels_init()
 
   level_map=[[
 #########
-#P.*...##
+#P.a...##
 #.......#
 #.......#
 #.......#
 #....O..#
 #########]]
-  add(levels,level_map)
+  sublevel_map=[[
+#######
+#.....#
+...*..#
+#.....#
+###.###]]
+  add(levels,{map=level_map,sublevels={a=sublevel_map}})
 end
 
 function parse_level(level_info)
