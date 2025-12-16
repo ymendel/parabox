@@ -138,6 +138,17 @@ function tgts_draw()
     local c=tgt.box and 7 or 6
     rectdim(coords[1],coords[2],7,7,c)
   end
+
+  if (player_tgt) then
+    local coords=pos_to_screen_coords(player_tgt.pos)
+    -- local c=same_position(player_tgt,pl) and 7 or 6
+    -- player is draw over target
+    rectdim(coords[1],coords[2],7,7,0,true)
+    rectdim(coords[1],coords[2],7,7,6)
+    palt(14,true)
+    spr(pl.spr,coords[1],coords[2])
+    palt()
+  end
 end
 
 function handle_box_push()
@@ -286,6 +297,8 @@ function do_mapset_parse(char,mpos)
     add_tgt(mpos)
   elseif (char=="P") then
     player_pos=mpos
+  elseif (char=="X") then
+    add_tgt(mpos,true)
   elseif (sublevel) then
     add_box(mpos,sublevel)
   end
@@ -305,13 +318,17 @@ function add_box(mpos,sublevel)
   add(boxes,nb)
 end
 
-function add_tgt(mpos)
+function add_tgt(mpos,player)
   local pos=tab_dupe(mpos)
   pos.level=parsing_level
   local nt={
     pos=pos
   }
-  add(tgts,nt)
+  if (player) then
+    player_tgt=nt
+  else
+    add(tgts,nt)
+  end
 end
 
 function check_bounds(mvr,dx,dy)
@@ -374,6 +391,12 @@ end
 function check_tgts()
   for tgt in all(tgts) do
     if (not tgt.box) then
+      return false
+    end
+  end
+
+  if (player_tgt) then
+    if (not same_position(pl,player_tgt)) then
       return false
     end
   end

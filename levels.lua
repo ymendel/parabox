@@ -88,7 +88,7 @@ function levels_init()
 #..a...#
 #.*###.#
 ##.###.#
-#..#..O#
+#..#X.O#
 #P.#####
 ########]]
   sublevel_map=[[
