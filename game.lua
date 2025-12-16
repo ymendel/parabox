@@ -86,31 +86,45 @@ function draw_box(box)
 end
 
 function draw_sublevel(sublevel,x,y)
+  local sox,soy=x,y
+  soy+=(7-sublevel.rows)\2
+
   sublevel_offset_parse=function(char,mpos)
-    ox,oy=x,y
-    oy+=(7-sublevel.rows)\2
-    do_sublevel_parse(char,mpos)
+    ox,oy=sox,soy
+    do_sublevel_draw_parse(char,mpos)
   end
 
   map_parse(sublevel,sublevel_offset_parse)
+
+  local plpos=pl.pos
+  if (plpos.level==sublevel.key) then
+    pset(plpos.x+sox,plpos.y+soy,14)
+  end
+  for box in all(boxes) do
+    local bpos=box.pos
+    if (bpos.level==sublevel.key) then
+      pset(bpos.x+sox,bpos.y+soy,12)
+    end
+  end
 end
 
-function do_sublevel_parse(char,mpos)
+function do_sublevel_draw_parse(char,mpos)
   local color=11
   local sublevel=level.sublevels[char]
 
   if (char=="#") then
     color=3
   elseif (char=="*") then
-    color=12
+    -- color=12
   elseif (char=="O") then
     color=6
   elseif (char=="@") then
     -- hmmmmm
     -- add_box(mpos)
     -- add_tgt(mpos)
+    color=6
   elseif (char=="P") then
-    color=14
+    -- color=14
   elseif (sublevel) then
     color=3
   end

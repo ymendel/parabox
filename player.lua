@@ -16,7 +16,7 @@ function player_update()
   if (btnp(⬆️)) pl.dy=-1
   if (btnp(⬇️)) pl.dy=1
 
-  add(debug,tab_to_string(pl.pos))
+  -- add(debug,tab_to_string(pl.pos))
   if (pl_moving()) then
     pl_do_move()
 
